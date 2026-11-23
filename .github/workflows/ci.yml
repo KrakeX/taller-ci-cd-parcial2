@@ -1,0 +1,45 @@
+# Pipeline de Integración Continua - Taller parcial 2
+# Autor: Pablo Durán Celis
+#
+# Objetivo: ejecutar automáticamente las pruebas del proyecto (npm test)
+# cada vez que se publican cambios en main y cada vez que se propone
+# integrar una rama a main mediante un Pull Request.
+
+name: CI - Pruebas automatizadas
+
+on:
+  # Cambios publicados en main (requisito del taller)
+  push:
+    branches: [ main ]
+  # Validación de la rama de corrección antes de integrarla a main
+  pull_request:
+    branches: [ main ]
+  # Permite relanzar el pipeline manualmente desde la pestaña Actions
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pruebas:
+    name: Ejecutar pruebas (Node.js 24)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Obtener el código del repositorio
+        uses: actions/checkout@v5
+
+      - name: Preparar entorno Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false   # el proyecto no tiene dependencias ni lockfile
+
+      - name: Mostrar versiones utilizadas
+        run: |
+          node --version
+          npm --version
+
+      - name: Ejecutar pruebas
+        run: npm test
